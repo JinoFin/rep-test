@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import DemoActions from "./DemoActions";
 import "./globals.css";
 import "./product-visuals.css";
+import "./ui-polish.css";
 
 export const metadata: Metadata = {
   title: "InstaOps CRM",
