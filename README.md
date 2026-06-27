@@ -1,185 +1,90 @@
-# Apex CE Operations
+# InstaOps CRM
 
-Private internal task and document review system for Apex CE daily operations.
+Instagram DM order operating system for small Instagram business owners.
 
-Implemented so far:
+This branch contains a functional demo MVP for **Luna Boutique**. It turns Instagram-style customer messages into structured order cards, shows orders, CRM, products, suppliers, delivery exports, finance, automation rules, and safe Meta webhook stubs.
 
-- Next.js App Router, TypeScript, Tailwind CSS
-- Supabase Auth client setup
-- protected app shell
-- login/logout
-- profile role model
-- Supabase schema/RLS/storage migration design
-- task CRUD for Milestone 2
-- My Tasks and All Tasks lists with filters
-- create/edit/detail task pages
-- status, priority, and risk badges
-- task detail comments
-- task detail activity log
-- assigned-user limited status/notes update foundation
-- private task file upload/list/download with signed URLs
-- task requirements checklist and manual requirement status management
+## Demo login
 
-AI review, Gmail import, and WeCom preparation are intentionally deferred.
+- `owner@luna.demo` / `demo123`
+- `manager@luna.demo` / `demo123`
+- `staff@luna.demo` / `demo123`
 
-## Tech Stack
+The login screen is a demo role selector for MVP presentation. Production should replace it with Supabase Auth.
 
-- Next.js 16 App Router
-- TypeScript
-- Tailwind CSS 4
-- Supabase Auth
-- Supabase Postgres
-- Supabase Storage
-- Supabase Row Level Security
-- Vercel-ready deployment
+## Implemented
 
-## Local Setup
+- Next.js App Router + TypeScript
+- Responsive SaaS dashboard UI
+- Realistic Luna Boutique demo data
+- Instagram Inbox with deterministic mock extraction
+- Create order from DM
+- Orders table and kanban-style lanes
+- Order status editing
+- Search and filters
+- CSV export for order and shipper lists
+- Customer CRM view
+- Product and supplier views
+- Finance dashboard
+- Automation rules page
+- Instagram connection demo page
+- Safe API stubs:
+  - `GET /api/meta/webhook`
+  - `POST /api/meta/webhook`
+  - `POST /api/instagram/send-message`
+- Supabase schema migration in `supabase/migrations/202606270001_instaops_crm_schema.sql`
 
-Install dependencies:
+## Supabase
+
+The migration creates a dedicated `instaops` schema so it does not overwrite existing public tables in the connected Supabase project.
+
+Tables included:
+
+- businesses
+- profiles
+- team_members
+- customers
+- instagram_conversations
+- instagram_messages
+- products
+- suppliers
+- orders
+- order_items
+- supplier_order_batches
+- supplier_order_batch_items
+- shipments
+- payments
+- expenses
+- crm_notes
+- tasks
+- automation_rules
+- audit_logs
+
+## Compliance boundary
+
+This MVP does not scrape Instagram and does not ask for Instagram usernames or passwords. Real production integration should use official Meta OAuth, Instagram Messaging API permissions, and webhook review.
+
+## Local setup
 
 ```bash
 npm install
-```
-
-Create an environment file:
-
-```bash
-cp .env.example .env.local
-```
-
-Set:
-
-```bash
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-```
-
-Run the app:
-
-```bash
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Then open `http://localhost:3000`.
 
-## Supabase Setup
+## What is mocked
 
-Apply the migration in `supabase/migrations` to your Supabase project.
+- Demo login
+- Instagram message ingestion
+- AI extraction
+- Sending replies
+- Supabase writes from the UI
 
-With Supabase CLI:
+## Next steps
 
-```bash
-supabase link --project-ref your-project-ref
-supabase db push
-```
-
-Create users in Supabase Auth, then insert matching rows into `profiles` with
-the same `auth.users.id`.
-
-Roles:
-
-- `admin`
-- `manager`
-- `user`
-- `viewer`
-
-The Storage bucket is `task-files` and must remain private.
-
-Use signed URLs for file downloads/previews. Do not create permanent public file
-URLs.
-
-## Routes
-
-Implemented now:
-
-- `/login`
-- `/dashboard`
-- `/my-tasks`
-- `/all-tasks`
-- `/authority-cases`
-- `/customers`
-- `/tasks/new`
-- `/tasks/[id]`
-- `/tasks/[id]/edit`
-- `/settings`
-
-All routes except `/login` are protected by `src/proxy.ts` and the protected app
-layout.
-
-## Task Pages
-
-- `/my-tasks`: shows tasks assigned to the signed-in user. Filters include
-  status, priority, deadline, customer, and authority.
-- `/all-tasks`: admin/manager-only task overview. Filters include assigned
-  person, status, priority, risk, deadline, customer, and authority.
-- `/tasks/new`: admin/manager-only create form.
-- `/tasks/[id]`: task detail page with files, requirements, comments, and
-  activity log. AI review is still a placeholder.
-- `/tasks/[id]/edit`: admin/manager-only edit form.
-
-Task creation, updates, limited assigned-user status changes, and comments write
-simple `activity_log` rows.
-
-File uploads:
-
-- use the private `task-files` bucket
-- write metadata to `task_files`
-- store paths as `tasks/{task_id}/{incoming|uploads|generated}/{file_id}-{filename}`
-- use `/tasks/[id]/files/[fileId]/download` to generate a short-lived signed URL
-- never expose permanent public URLs
-
-Requirements:
-
-- admin/manager can add, edit, and delete requirements
-- each requirement has a required file category and status
-- allowed statuses are `missing`, `uploaded`, `passed`, `failed`,
-  `manual_review`, and `manually_approved`
-- manual approval requires written feedback
-- uploading a file with a matching category moves missing requirements to
-  uploaded
-
-Known limitations:
-
-- Normal users can use the limited status/notes update panel only on assigned
-  tasks. Admins/managers use the full edit page.
-- RLS policies are hardened for task reads and writes. SQL policy tests live in
-  `supabase/tests/task_rls.sql`.
-- Task detail placeholders do not run AI review.
-
-## Architecture Notes
-
-See `docs/architecture.md` for the long-term design.
-
-Important boundaries:
-
-- AI review must never claim legal approval, 100% compliance, or guaranteed
-  authority acceptance.
-- Gmail import must never mark mail as read, delete/archive mail, or send
-  replies automatically.
-- WeCom support must prepare messages for human confirmation only.
-- Authority submission must never be automatic.
-
-## Commands
-
-```bash
-npm run lint
-npm run build
-npm test
-```
-
-`npm run build` uses Next's webpack build path because the default Turbopack
-build can require local worker behavior that is blocked in restricted Codex
-sandboxes. Vercel can still build the app normally.
-
-Run database policy tests from a configured Supabase local environment:
-
-```bash
-supabase test db
-```
-
-## Future Milestones
-
-- Milestone 7: Mock AI review, structured review JSON, manual override.
-- Milestone 8: Dashboards.
-- Milestone 9: Unit and Playwright hardening.
-- Milestone 10: Gmail import preparation.
+1. Replace demo login with Supabase Auth.
+2. Run the migration and seed data in Supabase.
+3. Add Supabase client queries/mutations to replace in-memory demo state.
+4. Configure official Meta app, OAuth, permissions, and webhooks.
+5. Add XLSX export and supplier batch persistence.
