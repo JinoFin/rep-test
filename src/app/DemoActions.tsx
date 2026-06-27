@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import "./action-styles.css";
 
 const replies = [
   "Yes, it is available ✅ Please send your full address, phone number, and preferred payment method so we can confirm the order.",
