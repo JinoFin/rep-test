@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import "./efficiency-showcase.css";
 
 const problems = [
   { pain: "New orders hidden inside DMs", solution: "Detect order intent and turn the message into an order draft", saved: "45 min" },
