@@ -5,11 +5,6 @@ export default defineConfig({
   test: {
     isolate: false,
     pool: "threads",
-    poolOptions: {
-      threads: {
-        singleThread: true,
-      },
-    },
   },
   resolve: {
     alias: {
