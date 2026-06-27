@@ -3,6 +3,7 @@ import DemoActions from "./DemoActions";
 import EfficiencyShowcase from "./EfficiencyShowcase";
 import "./globals.css";
 import "./product-visuals.css";
+import "./efficiency-showcase.css";
 
 export const metadata: Metadata = {
   title: "InstaOps CRM",
